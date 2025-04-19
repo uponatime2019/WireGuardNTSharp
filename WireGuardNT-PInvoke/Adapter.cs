@@ -178,20 +178,22 @@ namespace WireGuardNT_PInvoke
                             wgConfig.InterfaceMtu = Convert.ToUInt16(value);
                             continue;
                         case "address":
-                            string address = value.Split(',').First().Trim();
+                            string address = value.Split(',').First().Split('/').First().Trim();
                             if (ValidateIPv4(address))
                             {
-                                wgConfig.InterfaceNetwork = IPNetwork.Parse(value.Split(',').First());
+                                wgConfig.InterfaceNetwork = IPNetwork.Parse(address);
+                                wgConfig.InterfaceAddress = IPAddress.Parse(address);
                             }
                             else
                             {
                                 var ipEntry = Dns.GetHostEntry(address);
                                 wgConfig.InterfaceNetwork = IPNetwork.Parse(ipEntry.AddressList[0].ToString());
                             }
-                            
+
                             continue;
                         case "dns":
-                            wgConfig.DnsAddresses = value.Split(',').Select(dns => dns.Trim()).Select(dns => {
+                            wgConfig.DnsAddresses = value.Split(',').Select(dns => dns.Trim()).Select(dns =>
+                            {
                                 if (ValidateIPv4(dns))
                                 {
                                     return IPAddress.Parse(dns);
